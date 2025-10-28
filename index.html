@@ -745,10 +745,6 @@
         function saveDayData() {
             const dateKey = getDateKey(currentDateViewing);
             
-            if (!habitData[dateKey]) {
-                habitData[dateKey] = {};
-            }
-            
             const habits = {};
             document.querySelectorAll('.habit-item').forEach(item => {
                 const habitId = item.dataset.habit;
@@ -763,20 +759,29 @@
             });
             const score = Math.round((checked / total) * 100);
             
-            habitData[dateKey] = {
-                habits: habits,
-                notes: document.getElementById('dailyNotes').value,
-                score: score,
-                validated: true,
-                timestamp: new Date().toISOString()
-            };
+            // Ne sauvegarder que si au moins une habitude est cochée
+            if (checked > 0) {
+                habitData[dateKey] = {
+                    habits: habits,
+                    notes: document.getElementById('dailyNotes').value,
+                    score: score,
+                    validated: true,
+                    timestamp: new Date().toISOString()
+                };
+                
+                saveData();
+            } else {
+                // Si aucune habitude cochée, supprimer les données de ce jour
+                if (habitData[dateKey]) {
+                    delete habitData[dateKey];
+                    saveData();
+                }
+            }
             
-            saveData();
             updateStats();
             generateCalendar();
             generateYearView();
         }
-        
         // Sauvegarder les notes
         function saveNotes() {
             saveDayData();
