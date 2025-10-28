@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Habit Tracker - Preview</title>
+    <title>Habit Tracker Pro - Suivi d'Habitudes</title>
     <style>
         * {
             margin: 0;
@@ -32,6 +32,7 @@
             color: white;
             padding: 40px;
             text-align: center;
+            position: relative;
         }
         
         .header h1 {
@@ -46,9 +47,39 @@
             font-style: italic;
         }
         
+        .date-selector {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .date-selector button {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+        
+        .date-selector button:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+        
+        .date-selector .current-date {
+            font-size: 1.3em;
+            font-weight: bold;
+            min-width: 200px;
+        }
+        
         .stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 20px;
             padding: 30px 40px;
             background: #f8f9fa;
@@ -201,6 +232,182 @@
             min-height: 100px;
         }
         
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+        
+        .calendar-view {
+            margin-top: 40px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+        
+        .calendar-title {
+            font-size: 1.8em;
+            color: #2a5298;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border-radius: 10px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .calendar-day:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .calendar-day .day-number {
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 5px;
+        }
+        
+        .calendar-day .day-score {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+        
+        .calendar-day.perfect {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+        
+        .calendar-day.good {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .calendar-day.medium {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+        
+        .calendar-day.low {
+            background: #f8f9fa;
+        }
+        
+        .calendar-day.today {
+            border: 3px solid #ffc107;
+        }
+        
+        .day-locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+            position: relative;
+        }
+        
+        .day-locked::after {
+            content: '🔒';
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 0.8em;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .modal-content h2 {
+            color: #2a5298;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+        
+        .modal-content p {
+            font-size: 1.2em;
+            color: #495057;
+            margin-bottom: 30px;
+        }
+        
+        .streak-badge {
+            display: inline-block;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 20px;
+            font-weight: bold;
+            margin: 10px 5px;
+        }
+        
         @media (max-width: 768px) {
             .habit-item {
                 grid-template-columns: 40px 1fr 80px;
@@ -218,14 +425,29 @@
                 min-width: 100px;
                 min-height: 100px;
             }
+            
+            .calendar-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .date-selector {
+                flex-direction: column;
+                gap: 10px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎯 Mon Habit Tracker</h1>
+            <h1>🎯 Mon Habit Tracker Pro</h1>
             <p>"La discipline est le pont entre les objectifs et l'accomplissement"</p>
+            
+            <div class="date-selector">
+                <button onclick="changeDate(-1)">◀ Jour Précédent</button>
+                <div class="current-date" id="currentDate"></div>
+                <button onclick="changeDate(1)" id="nextDayBtn">Jour Suivant ▶</button>
+            </div>
         </div>
         
         <div class="stats">
@@ -234,12 +456,20 @@
                 <div class="label">Streak Actuel</div>
             </div>
             <div class="stat-card">
-                <div class="number">0</div>
+                <div class="number" id="bestStreak">0</div>
                 <div class="label">Meilleur Streak</div>
             </div>
             <div class="stat-card">
                 <div class="number" id="weekAverage">0%</div>
                 <div class="label">Moyenne 7 Jours</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="monthAverage">0%</div>
+                <div class="label">Moyenne 30 Jours</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="totalDays">0</div>
+                <div class="label">Jours Trackés</div>
             </div>
             <div class="stat-card">
                 <div class="number">11</div>
@@ -334,7 +564,20 @@
             <!-- NOTES -->
             <div class="notes-section">
                 <h3>📝 Notes du jour</h3>
-                <textarea placeholder="Qu'ai-je bien fait aujourd'hui ?&#10;Qu'est-ce que je peux améliorer ?&#10;Comment je me sens ?"></textarea>
+                <textarea id="dailyNotes" placeholder="Qu'ai-je bien fait aujourd'hui ?&#10;Qu'est-ce que je peux améliorer ?&#10;Comment je me sens ?" onchange="saveNotes()"></textarea>
+            </div>
+            
+            <!-- BOUTONS D'ACTION -->
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="validateDay()">✅ Valider la Journée</button>
+                <button class="btn btn-secondary" onclick="exportData()">📊 Exporter les Données</button>
+                <button class="btn btn-danger" onclick="resetData()">🔄 Réinitialiser</button>
+            </div>
+            
+            <!-- CALENDRIER -->
+            <div class="calendar-view">
+                <div class="calendar-title">📅 Historique des 30 Derniers Jours</div>
+                <div class="calendar-grid" id="calendarGrid"></div>
             </div>
         </div>
     </div>
@@ -344,32 +587,123 @@
         <div class="score-label">Score du jour</div>
     </div>
     
+    <!-- MODAL DE VALIDATION -->
+    <div class="modal" id="validationModal">
+        <div class="modal-content">
+            <h2>🎉 Journée Validée !</h2>
+            <p id="validationMessage"></p>
+            <div id="streakInfo"></div>
+            <button class="btn btn-primary" onclick="closeModal()">Fermer</button>
+        </div>
+    </div>
+    
     <script>
-        function updateScore() {
-            const checkboxes = document.querySelectorAll('.habit-checkbox');
-            const total = checkboxes.length;
-            let checked = 0;
+        // Variables globales
+        let currentDateViewing = new Date();
+        let habitData = {};
+        
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+            updateDisplay();
+            generateCalendar();
+            updateStats();
+        });
+        
+        // Charger les données du localStorage
+        function loadData() {
+            const savedData = localStorage.getItem('habitTrackerData');
+            if (savedData) {
+                habitData = JSON.parse(savedData);
+            }
+        }
+        
+        // Sauvegarder les données dans localStorage
+        function saveData() {
+            localStorage.setItem('habitTrackerData', JSON.stringify(habitData));
+        }
+        
+        // Obtenir la clé de date (format YYYY-MM-DD)
+        function getDateKey(date) {
+            return date.toISOString().split('T')[0];
+        }
+        
+        // Obtenir la date d'aujourd'hui
+        function getTodayKey() {
+            return getDateKey(new Date());
+        }
+        
+        // Vérifier si on peut modifier une date
+        function canEditDate(date) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            date.setHours(0, 0, 0, 0);
+            return date <= today;
+        }
+        
+        // Mettre à jour l'affichage
+        function updateDisplay() {
+            const dateKey = getDateKey(currentDateViewing);
+            const dayData = habitData[dateKey] || {};
             
-            checkboxes.forEach(checkbox => {
+            // Mettre à jour la date affichée
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = 
+                currentDateViewing.toLocaleDateString('fr-FR', options);
+            
+            // Désactiver le bouton "Jour Suivant" si on est aujourd'hui
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const viewing = new Date(currentDateViewing);
+            viewing.setHours(0, 0, 0, 0);
+            document.getElementById('nextDayBtn').disabled = viewing >= today;
+            
+            // Désactiver les checkboxes si c'est une date future
+            const canEdit = canEditDate(currentDateViewing);
+            document.querySelectorAll('.habit-checkbox').forEach(checkbox => {
+                checkbox.disabled = !canEdit;
                 const habitItem = checkbox.closest('.habit-item');
+                const habitId = habitItem.dataset.habit;
+                checkbox.checked = dayData.habits && dayData.habits[habitId] || false;
+                
                 if (checkbox.checked) {
-                    checked++;
                     habitItem.classList.add('completed');
                 } else {
                     habitItem.classList.remove('completed');
                 }
             });
             
+            // Charger les notes
+            document.getElementById('dailyNotes').value = dayData.notes || '';
+            document.getElementById('dailyNotes').disabled = !canEdit;
+            
+            // Mettre à jour le score
+            updateScore();
+        }
+        
+        // Changer de date
+        function changeDate(delta) {
+            currentDateViewing.setDate(currentDateViewing.getDate() + delta);
+            updateDisplay();
+            updateStats();
+        }
+        
+        // Mettre à jour le score
+        function updateScore() {
+            const checkboxes = document.querySelectorAll('.habit-checkbox');
+            const total = checkboxes.length;
+            let checked = 0;
+            
+            checkboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    checked++;
+                }
+            });
+            
             const percentage = Math.round((checked / total) * 100);
             document.getElementById('scoreDisplay').textContent = percentage + '%';
             
-            // Update streak
-            if (percentage === 100) {
-                const currentStreak = parseInt(document.getElementById('currentStreak').textContent);
-                document.getElementById('currentStreak').textContent = currentStreak + 1;
-            }
-            
-            // Change color based on score
+            // Changer la couleur selon le score
             const scoreElement = document.querySelector('.daily-score');
             if (percentage === 100) {
                 scoreElement.style.background = 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)';
@@ -380,10 +714,252 @@
             } else {
                 scoreElement.style.background = 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)';
             }
+            
+            // Sauvegarder automatiquement
+            saveDayData();
         }
         
-        // Initialize
-        updateScore();
+        // Sauvegarder les données du jour
+        function saveDayData() {
+            const dateKey = getDateKey(currentDateViewing);
+            
+            if (!habitData[dateKey]) {
+                habitData[dateKey] = {};
+            }
+            
+            const habits = {};
+            document.querySelectorAll('.habit-item').forEach(item => {
+                const habitId = item.dataset.habit;
+                const checkbox = item.querySelector('.habit-checkbox');
+                habits[habitId] = checkbox.checked;
+            });
+            
+            const checkboxes = document.querySelectorAll('.habit-checkbox');
+            const total = checkboxes.length;
+            let checked = 0;
+            checkboxes.forEach(cb => { if (cb.checked) checked++; });
+            const score = Math.round((checked / total) * 100);
+            
+            habitData[dateKey] = {
+                habits: habits,
+                notes: document.getElementById('dailyNotes').value,
+                score: score,
+                validated: habitData[dateKey].validated || false,
+                timestamp: new Date().toISOString()
+            };
+            
+            saveData();
+            updateStats();
+            generateCalendar();
+        }
+        
+        // Sauvegarder les notes
+        function saveNotes() {
+            saveDayData();
+        }
+        
+        // Valider la journée
+        function validateDay() {
+            const dateKey = getDateKey(currentDateViewing);
+            
+            if (!canEditDate(currentDateViewing)) {
+                alert('Vous ne pouvez pas valider une journée future !');
+                return;
+            }
+            
+            saveDayData();
+            
+            if (!habitData[dateKey]) {
+                habitData[dateKey] = { habits: {}, notes: '', score: 0 };
+            }
+            
+            habitData[dateKey].validated = true;
+            habitData[dateKey].validatedAt = new Date().toISOString();
+            
+            saveData();
+            updateStats();
+            generateCalendar();
+            
+            // Afficher le modal de validation
+            const score = habitData[dateKey].score;
+            let message = '';
+            let emoji = '';
+            
+            if (score === 100) {
+                message = 'Parfait ! Vous avez complété toutes vos habitudes ! 🌟';
+                emoji = '🏆';
+            } else if (score >= 80) {
+                message = 'Excellent travail ! Continuez comme ça ! 💪';
+                emoji = '⭐';
+            } else if (score >= 50) {
+                message = 'Bien joué ! Il y a encore de la marge de progression ! 👍';
+                emoji = '👏';
+            } else {
+                message = 'Un début ! Demain sera meilleur ! 💪';
+                emoji = '🌱';
+            }
+            
+            document.getElementById('validationMessage').innerHTML = 
+                `${emoji}<br>Score: ${score}%<br>${message}`;
+            
+            const currentStreak = calculateCurrentStreak();
+            document.getElementById('streakInfo').innerHTML = 
+                `<div class="streak-badge">🔥 Streak: ${currentStreak} jours</div>`;
+            
+            document.getElementById('validationModal').classList.add('active');
+        }
+        
+        // Fermer le modal
+        function closeModal() {
+            document.getElementById('validationModal').classList.remove('active');
+        }
+        
+        // Calculer le streak actuel
+        function calculateCurrentStreak() {
+            let streak = 0;
+            const today = new Date();
+            
+            for (let i = 0; i < 365; i++) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                const dateKey = getDateKey(date);
+                
+                if (habitData[dateKey] && habitData[dateKey].validated && habitData[dateKey].score >= 80) {
+                    streak++;
+                } else {
+                    break;
+                }
+            }
+            
+            return streak;
+        }
+        
+        // Calculer le meilleur streak
+        function calculateBestStreak() {
+            let bestStreak = 0;
+            let currentStreak = 0;
+            
+            const sortedDates = Object.keys(habitData).sort();
+            
+            for (let i = 0; i < sortedDates.length; i++) {
+                const dateKey = sortedDates[i];
+                const dayData = habitData[dateKey];
+                
+                if (dayData.validated && dayData.score >= 80) {
+                    currentStreak++;
+                    bestStreak = Math.max(bestStreak, currentStreak);
+                } else {
+                    currentStreak = 0;
+                }
+            }
+            
+            return bestStreak;
+        }
+        
+        // Calculer la moyenne sur N jours
+        function calculateAverage(days) {
+            const today = new Date();
+            let total = 0;
+            let count = 0;
+            
+            for (let i = 0; i < days; i++) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                const dateKey = getDateKey(date);
+                
+                if (habitData[dateKey] && habitData[dateKey].score !== undefined) {
+                    total += habitData[dateKey].score;
+                    count++;
+                }
+            }
+            
+            return count > 0 ? Math.round(total / count) : 0;
+        }
+        
+        // Mettre à jour les statistiques
+        function updateStats() {
+            document.getElementById('currentStreak').textContent = calculateCurrentStreak();
+            document.getElementById('bestStreak').textContent = calculateBestStreak();
+            document.getElementById('weekAverage').textContent = calculateAverage(7) + '%';
+            document.getElementById('monthAverage').textContent = calculateAverage(30) + '%';
+            document.getElementById('totalDays').textContent = Object.keys(habitData).length;
+        }
+        
+        // Générer le calendrier
+        function generateCalendar() {
+            const calendarGrid = document.getElementById('calendarGrid');
+            calendarGrid.innerHTML = '';
+            
+            const today = new Date();
+            
+            for (let i = 29; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                const dateKey = getDateKey(date);
+                const dayData = habitData[dateKey];
+                
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                
+                // Ajouter la classe en fonction du score
+                if (dayData && dayData.score !== undefined) {
+                    if (dayData.score === 100) {
+                        dayElement.classList.add('perfect');
+                    } else if (dayData.score >= 80) {
+                        dayElement.classList.add('good');
+                    } else if (dayData.score >= 50) {
+                        dayElement.classList.add('medium');
+                    } else {
+                        dayElement.classList.add('low');
+                    }
+                }
+                
+                // Marquer aujourd'hui
+                if (i === 0) {
+                    dayElement.classList.add('today');
+                }
+                
+                // Ajouter le contenu
+                dayElement.innerHTML = `
+                    <div class="day-number">${date.getDate()}</div>
+                    <div class="day-score">${dayData && dayData.score !== undefined ? dayData.score + '%' : '-'}</div>
+                `;
+                
+                // Clic pour voir ce jour
+                dayElement.onclick = () => {
+                    currentDateViewing = new Date(date);
+                    updateDisplay();
+                };
+                
+                calendarGrid.appendChild(dayElement);
+            }
+        }
+        
+        // Exporter les données
+        function exportData() {
+            const dataStr = JSON.stringify(habitData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `habit-tracker-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        // Réinitialiser les données
+        function resetData() {
+            if (confirm('⚠️ Êtes-vous sûr de vouloir supprimer toutes vos données ? Cette action est irréversible !')) {
+                if (confirm('Vraiment sûr ? Toutes vos habitudes et statistiques seront perdues !')) {
+                    habitData = {};
+                    saveData();
+                    updateDisplay();
+                    updateStats();
+                    generateCalendar();
+                    alert('✅ Données réinitialisées avec succès !');
+                }
+            }
+        }
     </script>
 </body>
 </html>
