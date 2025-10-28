@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Habit Tracker - Preview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+            font-style: italic;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px 40px;
+            background: #f8f9fa;
+            border-bottom: 3px solid #e9ecef;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-card .number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .stat-card .label {
+            color: #6c757d;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .tracker-table {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        .section-title {
+            font-size: 1.5em;
+            color: #2a5298;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .habit-item {
+            display: grid;
+            grid-template-columns: 50px 1fr 100px;
+            align-items: center;
+            padding: 20px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            border-left: 5px solid transparent;
+        }
+        
+        .habit-item:hover {
+            background: #e9ecef;
+            border-left-color: #667eea;
+            transform: translateX(5px);
+        }
+        
+        .habit-item.completed {
+            background: #d4edda;
+            border-left-color: #28a745;
+        }
+        
+        .habit-icon {
+            font-size: 2em;
+            text-align: center;
+        }
+        
+        .habit-name {
+            font-size: 1.1em;
+            color: #495057;
+            font-weight: 500;
+        }
+        
+        .habit-checkbox {
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            accent-color: #28a745;
+            transform: scale(1.5);
+        }
+        
+        .daily-score {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px 35px;
+            border-radius: 50%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center;
+            min-width: 120px;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            z-index: 1000;
+        }
+        
+        .daily-score .score-number {
+            font-size: 2.5em;
+            line-height: 1;
+        }
+        
+        .daily-score .score-label {
+            font-size: 0.8em;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+        
+        .notes-section {
+            margin-top: 30px;
+            padding: 25px;
+            background: #fff3cd;
+            border-radius: 12px;
+            border-left: 5px solid #ffc107;
+        }
+        
+        .notes-section h3 {
+            color: #856404;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .notes-section textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1em;
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        @media (max-width: 768px) {
+            .habit-item {
+                grid-template-columns: 40px 1fr 80px;
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .daily-score {
+                bottom: 20px;
+                right: 20px;
+                padding: 20px;
+                min-width: 100px;
+                min-height: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Mon Habit Tracker</h1>
+            <p>"La discipline est le pont entre les objectifs et l'accomplissement"</p>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="number" id="currentStreak">0</div>
+                <div class="label">Streak Actuel</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">0</div>
+                <div class="label">Meilleur Streak</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="weekAverage">0%</div>
+                <div class="label">Moyenne 7 Jours</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">11</div>
+                <div class="label">Habitudes</div>
+            </div>
+        </div>
+        
+        <div class="tracker-table">
+            <!-- ROUTINE MATINALE -->
+            <div class="section">
+                <div class="section-title">
+                    🌅 Routine Matinale
+                </div>
+                <div class="habit-item" data-habit="sleep">
+                    <div class="habit-icon">🌙</div>
+                    <div class="habit-name">Coucher 20h00</div>
+                    <input type="checkbox" class="habit-checkbox" onchange="updateScore()">
+                </div>
+                <div class="habit-item" data-habit="wake">
+                    <div class="habit-icon">☀️</div>
+                    <div class="habit-name">Lever 5h00</div>
+                    <input type="checkbox" class="habit-checkbox" onchange="updateScore()">
+                </div>
+                <div class="habit-item" data-habit="morning">
+                    <div class="habit-icon">🏃‍♂️</div>
+                    <div class="habit-name">Wake up run/sport 3 min + sungazing + Méditation 10 min</div>
+                    <input type="checkbox" class="habit-checkbox" onchange="updateScore()">
+                </div>
+            </div>
+            
+            <!-- PRODUCTIVITÉ -->
+            <div class="section">
+                <div class="section-title">
+                    💼 Productivité
+                </div>
+                <div class="habit-item" data-habit="decision">
+                    <div class="habit-icon">💼</div>
+                    <div class="habit-name">Decision business journalière</div>
+                    <input type="checkbox" class="habit-checkbox" onchange="updateScore()">
+                </div>
+                <div class="habit-item" data-habit="deepwork">
+                    <div class="habit-icon">🎯</div>
+                    <div class="habit-name">Deep work 5x 90min minimum</div>
+                    <input type="checkbox" class="habit-checkbox" onchange="updateScore()">
+                </div>
+                <div class="habit-item" data-habit="nodistraction">
+                    <div class="habit-icon">🔇</div>
+                    <div class="habit-name">Pas de distraction jusqu'a fin des deep works</div>
+                    <input type="checkbox" class="habit-checkbox" onchange="updateScore()">
+                </div>
+            </div>
+            
+            <!-- SANTÉ & BIEN-ÊTRE -->
+            <div class="section">
+                <div class="section-title">
+                    🏃‍♂️ Santé & Bien-être
+                </div>
+                <div class="habit-item" data-habit="diet">
+                    <div class="habit-icon">🥩</div>
+                    <div class="habit-name">Raw Carnivore diet et 3 Fruits max</div>
+                    <input type="checkbox" class="habit-checkbox" onchange="updateScore()">
+                </div>
+                <div class="habit-item" data-habit="sun">
+                    <div class="habit-icon">🚶‍♂️</div>
+                    <div class="habit-name">Prendre le soleil+marcher durant les poses sans ecrans</div>
+                    <input type="checkbox" class="habit-checkbox" onchange="updateScore()">
+                </div>
+                <div class="habit-item" data-habit="outside">
+                    <div class="habit-icon">🌳</div>
+                    <div class="habit-name">Sortir juste après les deep work au minimum 2h par jour</div>
+                    <input type="checkbox" class="habit-checkbox" onchange="updateScore()">
+                </div>
+            </div>
+            
+            <!-- DÉVELOPPEMENT PERSONNEL -->
+            <div class="section">
+                <div class="section-title">
+                    📚 Développement Personnel
+                </div>
+                <div class="habit-item" data-habit="learning">
+                    <div class="habit-icon">📚</div>
+                    <div class="habit-name">Apprentissage journalier</div>
+                    <input type="checkbox" class="habit-checkbox" onchange="updateScore()">
+                </div>
+                <div class="habit-item" data-habit="planning">
+                    <div class="habit-icon">📝</div>
+                    <div class="habit-name">Planifier taches du lendemain</div>
+                    <input type="checkbox" class="habit-checkbox" onchange="updateScore()">
+                </div>
+            </div>
+            
+            <!-- NOTES -->
+            <div class="notes-section">
+                <h3>📝 Notes du jour</h3>
+                <textarea placeholder="Qu'ai-je bien fait aujourd'hui ?&#10;Qu'est-ce que je peux améliorer ?&#10;Comment je me sens ?"></textarea>
+            </div>
+        </div>
+    </div>
+    
+    <div class="daily-score">
+        <div class="score-number" id="scoreDisplay">0%</div>
+        <div class="score-label">Score du jour</div>
+    </div>
+    
+    <script>
+        function updateScore() {
+            const checkboxes = document.querySelectorAll('.habit-checkbox');
+            const total = checkboxes.length;
+            let checked = 0;
+            
+            checkboxes.forEach(checkbox => {
+                const habitItem = checkbox.closest('.habit-item');
+                if (checkbox.checked) {
+                    checked++;
+                    habitItem.classList.add('completed');
+                } else {
+                    habitItem.classList.remove('completed');
+                }
+            });
+            
+            const percentage = Math.round((checked / total) * 100);
+            document.getElementById('scoreDisplay').textContent = percentage + '%';
+            
+            // Update streak
+            if (percentage === 100) {
+                const currentStreak = parseInt(document.getElementById('currentStreak').textContent);
+                document.getElementById('currentStreak').textContent = currentStreak + 1;
+            }
+            
+            // Change color based on score
+            const scoreElement = document.querySelector('.daily-score');
+            if (percentage === 100) {
+                scoreElement.style.background = 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)';
+            } else if (percentage >= 80) {
+                scoreElement.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            } else if (percentage >= 50) {
+                scoreElement.style.background = 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)';
+            } else {
+                scoreElement.style.background = 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)';
+            }
+        }
+        
+        // Initialize
+        updateScore();
+    </script>
+</body>
+</html>
