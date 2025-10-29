@@ -257,6 +257,16 @@
             color: white;
         }
         
+        .btn-primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+        }
+        
         .btn-danger {
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             color: white;
@@ -505,7 +515,7 @@
                 <!-- Ordre logique de la journée -->
                 <div class="habit-item" data-habit="sleep" onclick="toggleHabit(this)">
                     <div class="habit-icon">🌙</div>
-                    <div class="habit-name">Coucher à 20h → Lunettes anti-lumière bleue à 17H</div>
+                    <div class="habit-name">Se coucher à 20h00</div>
                 </div>
                 
                 <div class="habit-item" data-habit="wake" onclick="toggleHabit(this)">
@@ -514,8 +524,8 @@
                 </div>
                 
                 <div class="habit-item" data-habit="morning" onclick="toggleHabit(this)">
-                    <div class="habit-icon">🧘</div>
-                    <div class="habit-name">Sungazing + Méditation de 10 min au reveil</div>
+                    <div class="habit-icon">🏃‍♂️</div>
+                    <div class="habit-name">Sungazing + Méditation de 10min au reveil</div>
                 </div>
                 
                 <div class="habit-item" data-habit="decision" onclick="toggleHabit(this)">
@@ -542,11 +552,6 @@
                     <div class="habit-icon">🌳</div>
                     <div class="habit-name">Sortir minimum 2h après les deep works</div>
                 </div>
-
-                                <div class="habit-item" data-habit="outside" onclick="toggleHabit(this)">
-                    <div class="habit-icon">🚫</div>
-                    <div class="habit-name">No fap</div>
-                </div>
                 
                 <div class="habit-item" data-habit="diet" onclick="toggleHabit(this)">
                     <div class="habit-icon">🥩</div>
@@ -571,6 +576,8 @@
             
             <div class="action-buttons">
                 <button class="btn btn-secondary" onclick="exportData()">📊 Exporter</button>
+                <button class="btn btn-primary" onclick="setupCloudSync()">☁️ Config Cloud</button>
+                <button class="btn btn-success" onclick="loadFromCloud()">⬇️ Récupérer</button>
                 <button class="btn btn-danger" onclick="resetData()">🔄 Réinitialiser</button>
             </div>
             
@@ -596,23 +603,145 @@
         let habitData = {};
         let fireworksLaunched = false;
         
-        document.addEventListener('DOMContentLoaded', function() {
-            loadData();
-            updateDisplay();
-            generateCalendar();
-            generateYearView();
-            updateStats();
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadData();
         });
         
-        function loadData() {
-            const savedData = localStorage.getItem('habitTrackerData');
-            if (savedData) {
-                habitData = JSON.parse(savedData);
+        // Configuration IndexedDB pour stockage persistant
+        let db;
+        const DB_NAME = 'HabitTrackerDB';
+        const DB_VERSION = 1;
+        const STORE_NAME = 'habits';
+        
+        // Initialiser IndexedDB
+        function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => {
+                    db = request.result;
+                    resolve(db);
+                };
+                
+                request.onupgradeneeded = (event) => {
+                    db = event.target.result;
+                    if (!db.objectStoreNames.contains(STORE_NAME)) {
+                        db.createObjectStore(STORE_NAME);
+                    }
+                };
+            });
+        }
+        
+        async function loadData() {
+            try {
+                // Charger depuis IndexedDB
+                await initDB();
+                const transaction = db.transaction([STORE_NAME], 'readonly');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.get('habitData');
+                
+                request.onsuccess = () => {
+                    if (request.result) {
+                        habitData = request.result;
+                        console.log('✅ Données chargées depuis IndexedDB');
+                    } else {
+                        // Fallback vers localStorage si IndexedDB est vide
+                        const savedData = localStorage.getItem('habitTrackerData');
+                        if (savedData) {
+                            habitData = JSON.parse(savedData);
+                            saveData(); // Migrer vers IndexedDB
+                        }
+                    }
+                    updateDisplay();
+                    updateStats();
+                    generateCalendar();
+                    generateYearView();
+                };
+            } catch (error) {
+                console.error('Erreur lors du chargement:', error);
+                // Fallback vers localStorage
+                const savedData = localStorage.getItem('habitTrackerData');
+                if (savedData) {
+                    habitData = JSON.parse(savedData);
+                }
             }
         }
         
-        function saveData() {
-            localStorage.setItem('habitTrackerData', JSON.stringify(habitData));
+        async function saveData() {
+            try {
+                // Sauvegarder dans IndexedDB
+                if (!db) await initDB();
+                const transaction = db.transaction([STORE_NAME], 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+                store.put(habitData, 'habitData');
+                
+                // Backup dans localStorage aussi
+                localStorage.setItem('habitTrackerData', JSON.stringify(habitData));
+                
+                // Synchronisation cloud automatique si disponible
+                syncToCloud();
+                
+                console.log('💾 Données sauvegardées');
+            } catch (error) {
+                console.error('Erreur lors de la sauvegarde:', error);
+                // Fallback vers localStorage uniquement
+                localStorage.setItem('habitTrackerData', JSON.stringify(habitData));
+            }
+        }
+        
+        // Synchronisation cloud (optionnel - utilise GitHub Gist comme backend gratuit)
+        async function syncToCloud() {
+            const syncKey = localStorage.getItem('habitTrackerSyncKey');
+            if (!syncKey) return; // Pas de clé de sync configurée
+            
+            try {
+                const response = await fetch(`https://api.github.com/gists/${syncKey}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        files: {
+                            'habit-tracker-data.json': {
+                                content: JSON.stringify(habitData, null, 2)
+                            }
+                        }
+                    })
+                });
+                
+                if (response.ok) {
+                    console.log('☁️ Synchronisation cloud réussie');
+                }
+            } catch (error) {
+                console.log('⚠️ Sync cloud désactivée ou échouée');
+            }
+        }
+        
+        async function loadFromCloud() {
+            const syncKey = localStorage.getItem('habitTrackerSyncKey');
+            if (!syncKey) {
+                alert('❌ Aucune clé de synchronisation configurée');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`https://api.github.com/gists/${syncKey}`);
+                if (response.ok) {
+                    const gist = await response.json();
+                    const content = gist.files['habit-tracker-data.json'].content;
+                    habitData = JSON.parse(content);
+                    await saveData();
+                    updateDisplay();
+                    updateStats();
+                    generateCalendar();
+                    generateYearView();
+                    alert('✅ Données récupérées depuis le cloud !');
+                }
+            } catch (error) {
+                alert('❌ Erreur lors de la récupération des données cloud');
+                console.error(error);
+            }
         }
         
         function getDateKey(date) {
@@ -896,11 +1025,15 @@
                 dayElement.className = 'calendar-day';
                 
                 const score = dayData && dayData.score !== undefined ? dayData.score : 0;
-                const bgColor = getColorFromPercentage(score);
-                dayElement.style.background = bgColor;
                 
-                if (score > 50) {
+                // Remplir uniquement si le score est à 100%
+                if (score === 100) {
+                    const bgColor = getColorFromPercentage(score);
+                    dayElement.style.background = bgColor;
                     dayElement.style.color = 'white';
+                } else {
+                    dayElement.style.background = '#e9ecef';
+                    dayElement.style.color = '#495057';
                 }
                 
                 if (i === 0) {
@@ -975,6 +1108,24 @@
                 `;
                 
                 monthsGrid.appendChild(monthCard);
+            }
+        }
+        
+        function setupCloudSync() {
+            const currentKey = localStorage.getItem('habitTrackerSyncKey');
+            const message = currentKey 
+                ? `Clé actuelle: ${currentKey.substring(0, 8)}...\n\nVoulez-vous la modifier ?`
+                : 'Configuration de la synchronisation cloud\n\nPour utiliser cette fonction:\n1. Créez un GitHub Gist public\n2. Copiez l\'ID du Gist (dans l\'URL)\n3. Collez-le ici';
+            
+            const newKey = prompt(message, currentKey || '');
+            
+            if (newKey && newKey.trim()) {
+                localStorage.setItem('habitTrackerSyncKey', newKey.trim());
+                alert('✅ Clé de synchronisation enregistrée !\n\nVos données seront maintenant automatiquement synchronisées.');
+                syncToCloud(); // Sync immédiat
+            } else if (newKey === '') {
+                localStorage.removeItem('habitTrackerSyncKey');
+                alert('🔓 Synchronisation cloud désactivée');
             }
         }
         
