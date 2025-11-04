@@ -579,17 +579,15 @@
                 <textarea id="dailyNotes" placeholder="Qu'ai-je bien fait aujourd'hui ?&#10;Qu'est-ce que je peux améliorer ?&#10;Comment je me sens ?" onchange="saveNotes()"></textarea>
             </div>
 
-    <div class="habit-name">2 min respiration Wim Hof entre chaque session deep-work → reset cerveau + oxygène</div>
-</div>
-
-    <div class="habit-name">Après 17 h : lumières tamisées et écran à 20 % + filtre lumière bleu</div>
-</div>
-
-    <div class="habit-name">Boire 250 ml d’eau de coco à jeun pour réhydrater</div>
-</div>
-
-    <div class="habit-name">Étirements / yoga 3 min + 30 s respiration Wim Hof juste avant la méditation → réveil musculaire & clarté</div>
-</div>
+<details style="margin: 20px 0; padding: 15px; background:#f1f3f5; border-radius:10px;">
+  <summary style="font-weight:600; color:#495057; cursor:pointer;">🌟 Bonus - pas essentiel mais sympa</summary>
+  <div style="margin-top:10px; display:flex; flex-direction:column; gap:8px; font-size:0.9em; color:#6c757d;">
+    <label><input type="checkbox" data-bonus="wimhof-between"> 2 min respiration Wim Hof entre deep-work</label>
+    <label><input type="checkbox" data-bonus="blue-light"> Lumières tamisées + écran 20 % après 17 h</label>
+    <label><input type="checkbox" data-bonus="coco-water"> 250 ml eau de coco à jeun</label>
+    <label><input type="checkbox" data-bonus="pre-meditation"> 3 min yoga + 30 s Wim Hof avant méditation</label>
+  </div>
+</details>
             
             <div class="action-buttons">
                 <button class="btn btn-secondary" onclick="exportData()">📊 Exporter</button>
