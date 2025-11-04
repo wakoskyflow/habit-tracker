@@ -578,6 +578,27 @@
                 <h3>📝 Notes du jour</h3>
                 <textarea id="dailyNotes" placeholder="Qu'ai-je bien fait aujourd'hui ?&#10;Qu'est-ce que je peux améliorer ?&#10;Comment je me sens ?" onchange="saveNotes()"></textarea>
             </div>
+
+<!-- NOUVELLES HABITUDES -->
+<div class="habit-item" data-habit="wimhof-between" onclick="toggleHabit(this)">
+    <div class="habit-icon">🌬️</div>
+    <div class="habit-name">2 min respiration Wim Hof entre chaque session deep-work → reset cerveau + oxygène</div>
+</div>
+
+<div class="habit-item" data-habit="blue-light" onclick="toggleHabit(this)">
+    <div class="habit-icon">🔴</div>
+    <div class="habit-name">Après 17 h : lumières tamisées et écran à 20 % + filtre lumière bleu</div>
+</div>
+
+<div class="habit-item" data-habit="coco-water" onclick="toggleHabit(this)">
+    <div class="habit-icon">🥥</div>
+    <div class="habit-name">Boire 250 ml d’eau de coco à jeun pour réhydrater</div>
+</div>
+
+<div class="habit-item" data-habit="pre-meditation" onclick="toggleHabit(this)">
+    <div class="habit-icon">🧘‍♂️</div>
+    <div class="habit-name">Étirements / yoga 3 min + 30 s respiration Wim Hof juste avant la méditation → réveil musculaire & clarté</div>
+</div>
             
             <div class="action-buttons">
                 <button class="btn btn-secondary" onclick="exportData()">📊 Exporter</button>
